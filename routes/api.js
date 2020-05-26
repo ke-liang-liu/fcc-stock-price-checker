@@ -19,14 +19,15 @@ module.exports = function (app) {
     .get(function (req, res){
     
       //*** set likes fields ***/
-      console.log('req.query.like:')
-      console.log(req.query.like);
       if (req.query.like === 'true' || req.query.like === true) {
+        
+        
         var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g;
         // req.ip
         // req.connection.remoteAddress
         // req.headers['x-forwarded-for'] 49.180.30.82,::ffff:10.10.10.82,::ffff:10.10.93.13
-        var ip = req.headers['x-forwarded-for'].match(ipRegex)[0];
+        var ip = req.ip.match(ipRegex)[0];
+        console.log('inside set likes ip: ' + ip);
         if (typeof req.query.stock === "string") {
           var likes = {};
           likes.ticker = req.query.stock.toUpperCase();
@@ -40,9 +41,12 @@ module.exports = function (app) {
           likes2.ip = ip;
         }
       }
-      
+      console.log('likes: ' + likes);
       MongoClient.connect(CONNECTION_STRING, function(err, client) {
+        
         const db = client.db('test2');
+        // create unique index in database
+        db.collection('stockTickerLikes').createIndex({'ticker': 1, 'ip': 1},{unique: true});
         if (likes) {
           db.collection('stockTickerLikes').insertOne(likes, function(err, result) {
             if (err) { console.log(err) }
