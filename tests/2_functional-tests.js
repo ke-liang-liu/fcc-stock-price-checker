@@ -57,7 +57,6 @@ suite('Functional Tests', function() {
             assert.equal(res.body.stockData.likes, 2); //must delete {ip: '127.0.0.1'} before running this test
             done();
         })
-        
       });
       
       test('1 stock with like again (ensure likes arent double counted)', function(done) {
@@ -82,13 +81,48 @@ suite('Functional Tests', function() {
       });
       
       test('2 stocks', function(done) {
-        
+        this.timeout(3000);
+        chai.request(server)
+          .get('/api/stock-prices/')
+          .query({stock: ['goog', 'msft']})
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, 'should be an object');
+            assert.isArray(res.body.stockData, 'should be an array');
+            assert.isObject(res.body.stockData[0], 'should be an object');
+            assert.isObject(res.body.stockData[1], 'should be an object');
+            assert.equal(res.body.stockData[0].stock, 'GOOG');
+            assert.equal(res.body.stockData[1].stock, 'MSFT');
+            assert.isNumber(res.body.stockData[0].price, 'should be a number');
+            assert.isNumber(res.body.stockData[1].price, 'should be a number');
+            assert.isNumber(res.body.stockData[0].rel_likes, 'should be a number');
+            assert.isNumber(res.body.stockData[1].rel_likes, 'should be a number');
+            assert.equal(res.body.stockData[0].rel_likes, 2);
+            assert.equal(res.body.stockData[1].rel_likes, -2);
+            done();
+        });
       });
       
       test('2 stocks with like', function(done) {
-        
+        chai.request(server)
+          .get('/api/stock-prices/')
+          .query({stock: ['goog', 'msft'], like: true})
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, 'should be an object');
+            assert.isArray(res.body.stockData, 'should be an array');
+            assert.isObject(res.body.stockData[0], 'should be an object');
+            assert.isObject(res.body.stockData[1], 'should be an object');
+            assert.equal(res.body.stockData[0].stock, 'GOOG');
+            assert.equal(res.body.stockData[1].stock, 'MSFT');
+            assert.isNumber(res.body.stockData[0].price, 'should be a number');
+            assert.isNumber(res.body.stockData[1].price, 'should be a number');
+            assert.isNumber(res.body.stockData[0].rel_likes, 'should be a number');
+            assert.isNumber(res.body.stockData[1].rel_likes, 'should be a number');
+            assert.equal(res.body.stockData[0].rel_likes, 2);
+            assert.equal(res.body.stockData[1].rel_likes, -2);
+            done();
+        });
       });
-      
     });
-
 });

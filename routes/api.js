@@ -17,7 +17,8 @@ module.exports = function (app) {
   
   app.route('/api/stock-prices')
     .get(function (req, res){
-    
+      console.log(req.query.stock);
+          
       //*** set likes fields ***/
       if (req.query.like === 'true' || req.query.like === true) {
         
@@ -27,7 +28,6 @@ module.exports = function (app) {
         // req.connection.remoteAddress
         // req.headers['x-forwarded-for'] 49.180.30.82,::ffff:10.10.10.82,::ffff:10.10.93.13
         var ip = req.ip.match(ipRegex)[0];
-        console.log('inside set likes ip: ' + ip);
         if (typeof req.query.stock === "string") {
           var likes = {};
           likes.ticker = req.query.stock.toUpperCase();
